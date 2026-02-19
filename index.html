@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CardValue</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1041/1041888.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-slate-50 font-sans select-none">
+    <div id="app" class="max-w-md mx-auto min-h-screen pb-24">
+        
+        <!-- Header -->
+        <header class="bg-indigo-700 text-white p-6 pt-12 rounded-b-3xl shadow-lg mb-6">
+            <h1 class="text-2xl font-bold italic tracking-tight">CARD MAXIMIZER</h1>
+            <p class="text-indigo-200 text-xs">Maximize every cent of your spend</p>
+        </header>
+
+        <div class="px-4 space-y-6">
+            
+            <!-- SEARCH SECTION (Requirement 3) -->
+            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Quick Search</label>
+                <input v-model="searchQuery" type="text" placeholder="e.g. restaurant, grocery, travel" 
+                    class="w-full bg-slate-100 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg">
+                
+                <div v-if="bestCards.length > 0" class="mt-4 space-y-3">
+                    <div v-for="(res, index) in bestCards" :key="index" 
+                        class="flex justify-between items-center p-3 rounded-xl border-l-4"
+                        :class="index === 0 ? 'bg-indigo-50 border-indigo-500' : 'bg-slate-50 border-slate-300'">
+                        <div>
+                            <span class="font-bold text-slate-800">{{ res.name }}</span>
+                            <p class="text-xs text-slate-500">{{ res.multiplier }}x Points</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xl font-black text-indigo-700">{{ res.effectiveValue }}%</span>
+                            <p class="text-[10px] text-slate-400 uppercase">Return</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHECKLIST SECTION (Requirement 2) -->
+            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="font-bold text-slate-700 mb-3 flex justify-between">
+                    <span>Active Benefits</span>
+                    <span class="text-indigo-600 text-xs mt-1">{{ benefitsUsedCount }}/{{ activeBenefits.length }} Done</span>
+                </h2>
+                <div class="space-y-3">
+                    <div v-for="benefit in activeBenefits" :key="benefit.id" 
+                        @click="benefit.completed = !benefit.completed"
+                        class="flex items-center space-x-3 p-3 rounded-xl transition-all border"
+                        :class="benefit.completed ? 'bg-slate-50 border-transparent opacity-60' : 'bg-white border-slate-100 shadow-sm'">
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+                            :class="benefit.completed ? 'bg-green-500 border-green-500' : 'border-slate-300'">
+                            <span v-if="benefit.completed" class="text-white text-xs">✓</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold" :class="{'line-through': benefit.completed}">{{ benefit.name }}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">{{ benefit.cardName }} • {{ benefit.frequency }}</p>
+                        </div>
+                        <span class="font-mono font-bold text-slate-600">${{ benefit.amount }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VALUATION SETTINGS (Requirement 4) -->
+            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="font-bold text-slate-700 mb-3">Point Values (CPP)</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div v-for="(val, key) in pointValues" :key="key" class="bg-slate-50 p-2 rounded-lg">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase px-1">{{ key }}</label>
+                        <input type="number" step="0.1" v-model="pointValues[key]" class="w-full bg-transparent p-1 font-bold text-indigo-700 outline-none">
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Navigation (Requirement 1 - Add Card placeholder) -->
+        <nav class="fixed bottom-6 left-4 right-4 bg-slate-900/90 backdrop-blur-md rounded-2xl p-4 flex justify-around shadow-2xl">
+            <button class="text-white text-xs font-bold flex flex-col items-center">
+                <span>Dashboard</span>
+            </button>
+            <button @click="addDemoCard" class="bg-indigo-600 px-4 py-1 rounded-full text-white text-xs font-bold">
+                + Add Demo Card
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch } = Vue;
+
+        createApp({
+            setup() {
+                // Point Values (Requirement 4)
+                const pointValues = ref(JSON.parse(localStorage.getItem('pointValues')) || {
+                    MR: 1.6, UR: 1.7, C1: 1.0, Cash: 1.0
+                });
+
+                // User Cards (Requirement 1)
+                const myCards = ref(JSON.parse(localStorage.getItem('myCards')) || [
+                    { 
+                        name: 'Amex Gold', type: 'MR', 
+                        rewards: { restaurant: 4, grocery: 4, travel: 3 },
+                        benefits: [
+                            { id: 1, name: 'Uber Credit', amount: 10, frequency: 'monthly', completed: false },
+                            { id: 2, name: 'Resy Credit', amount: 50, frequency: 'semi-annual', completed: false }
+                        ]
+                    }
+                ]);
+
+                const searchQuery = ref('');
+
+                const bestCards = computed(() => {
+                    if (!searchQuery.value) return [];
+                    const category = searchQuery.value.toLowerCase();
+                    return myCards.value
+                        .map(card => {
+                            const multiplier = card.rewards[category] || 1;
+                            const cpp = pointValues.value[card.type] || 1.0;
+                            return {
+                                name: card.name,
+                                multiplier: multiplier,
+                                effectiveValue: (multiplier * cpp).toFixed(1)
+                            };
+                        })
+                        .sort((a, b) => b.effectiveValue - a.effectiveValue)
+                        .slice(0, 3);
+                });
+
+                const activeBenefits = computed(() => {
+                    return myCards.value.flatMap(card => 
+                        card.benefits.map(b => ({ ...b, cardName: card.name }))
+                    );
+                });
+
+                const benefitsUsedCount = computed(() => activeBenefits.value.filter(b => b.completed).length);
+
+                const addDemoCard = () => {
+                    myCards.value.push({
+                        name: 'Chase Sapphire Pref', type: 'UR', 
+                        rewards: { restaurant: 3, travel: 2, grocery: 1 },
+                        benefits: [{ id: Date.now(), name: 'Hotel Credit', amount: 50, frequency: 'annual', completed: false }]
+                    });
+                };
+
+                watch([pointValues, myCards], () => {
+                    localStorage.setItem('pointValues', JSON.stringify(pointValues.value));
+                    localStorage.setItem('myCards', JSON.stringify(myCards.value));
+                }, { deep: true });
+
+                return { pointValues, myCards, searchQuery, bestCards, activeBenefits, benefitsUsedCount, addDemoCard };
+            }
+        }).mount('#app');
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
