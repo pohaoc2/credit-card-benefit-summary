@@ -1,166 +1,1011 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>CardValue</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1041/1041888.png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f1e">
+<meta name="description" content="CardMaxx – Track, optimize, and maximize your credit card benefits">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CardMaxx">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>CardMaxx — Benefits Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a0f1e;--navy2:#111827;--navy3:#1a2440;--gold:#c9a84c;--gold2:#e8c97a;--gold3:#f5e6b8;--cream:#f7f3eb;--text:#e8e4da;--text2:#9b9589;--red:#e05c5c;--green:#4caf8a;--blue:#4a90d9;--card-bg:rgba(255,255,255,.04);--card-border:rgba(201,168,76,.2);--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{background:var(--navy);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(201,168,76,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 60% at 80% 80%,rgba(74,144,217,.04) 0%,transparent 50%),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.015) 60px),repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.015) 60px);pointer-events:none}
+#app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px 100px}
+
+/* Header */
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 0 20px;border-bottom:1px solid var(--card-border);margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--gold2);letter-spacing:-.02em}
+.logo span{color:var(--text2);font-weight:400;font-size:.85rem;margin-left:8px;font-family:'DM Sans',sans-serif;vertical-align:middle}
+
+/* Nav */
+nav{display:flex;gap:3px;background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:50px;padding:3px}
+nav button{background:none;border:none;cursor:pointer;padding:7px 14px;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:var(--text2);transition:all .2s;white-space:nowrap}
+nav button.active{background:var(--gold);color:var(--navy)}
+nav button:hover:not(.active){color:var(--text)}
+
+/* Sections */
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:600;color:var(--cream);margin-bottom:4px}
+.section-sub{color:var(--text2);font-size:.88rem;margin-bottom:24px}
+
+/* Cards Grid */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card-widget{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.card-widget:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.card-widget::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2),transparent)}
+.card-network-badge{position:absolute;top:14px;right:14px;font-size:.62rem;font-weight:600;letter-spacing:.08em;padding:3px 7px;border-radius:4px;text-transform:uppercase}
+.badge-amex{background:rgba(0,102,204,.25);color:#6ab0ff;border:1px solid rgba(0,102,204,.4)}
+.badge-visa{background:rgba(26,35,126,.4);color:#8899ff;border:1px solid rgba(26,35,126,.5)}
+.badge-mc{background:rgba(180,40,40,.25);color:#ff8888;border:1px solid rgba(180,40,40,.4)}
+.badge-discover{background:rgba(255,120,0,.2);color:#ffaa55;border:1px solid rgba(255,120,0,.35)}
+.card-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--cream);margin-bottom:3px;padding-right:65px}
+.card-issuer{font-size:.75rem;color:var(--text2);margin-bottom:12px}
+.card-annual-fee{font-size:.78rem;color:var(--text2)}
+.card-annual-fee span{color:var(--gold2);font-weight:600}
+.card-points-label{display:inline-block;margin-top:7px;font-size:.72rem;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:4px;background:rgba(201,168,76,.1);color:var(--gold2);border:1px solid rgba(201,168,76,.2)}
+.benefit-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.benefit-tag{font-size:.68rem;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text2)}
+.card-actions{display:flex;gap:7px;margin-top:14px}
+.btn-sm{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;padding:5px 12px;border-radius:7px;cursor:pointer;border:1px solid var(--card-border);transition:all .15s}
+.btn-ghost{background:none;color:var(--text2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--text2)}
+.btn-danger{background:none;color:var(--red);border-color:rgba(224,92,92,.3)}
+.btn-danger:hover{background:rgba(224,92,92,.1)}
+.add-card-btn{background:none;border:1px dashed rgba(201,168,76,.3);border-radius:var(--radius);padding:18px;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.88rem;width:100%;text-align:center;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.add-card-btn:hover{border-color:var(--gold);color:var(--gold2);background:rgba(201,168,76,.04)}
+
+/* Primary Button */
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;padding:11px 24px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-cancel{background:none;border:1px solid rgba(255,255,255,.15);color:var(--text2);padding:9px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;font-size:.88rem}
+.btn-cancel:hover{border-color:var(--text2);color:var(--text)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--card-border);border-radius:20px;padding:28px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--cream);margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:7px}
+.form-input,.form-select,.form-textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text);transition:border-color .2s;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold)}
+.form-select option{background:var(--navy2)}
+.form-textarea{min-height:70px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.benefit-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;margin-bottom:7px}
+.benefit-icon{font-size:1.1rem;flex-shrink:0}
+.benefit-info{flex:1;min-width:0}
+.benefit-name{font-size:.82rem;font-weight:500;color:var(--text)}
+.benefit-detail{font-size:.72rem;color:var(--text2)}
+.benefit-remove{background:none;border:none;cursor:pointer;color:var(--text2);font-size:.9rem;transition:color .15s;padding:4px}
+.benefit-remove:hover{color:var(--red)}
+.add-sub-btn{background:none;border:1px dashed rgba(201,168,76,.25);border-radius:8px;padding:8px 14px;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.78rem;width:100%;text-align:center;transition:all .2s;margin-top:6px}
+.add-sub-btn:hover{border-color:var(--gold);color:var(--gold2)}
+.sub-form{display:none;background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:11px;padding:14px;margin-top:7px}
+
+/* ─── CHECKLIST ─── */
+.checklist-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.checklist-filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{background:none;border:1px solid var(--card-border);border-radius:50px;padding:5px 14px;font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text2);cursor:pointer;transition:all .2s}
+.filter-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:600}
+.filter-btn:hover:not(.active){border-color:var(--text2);color:var(--text)}
+
+/* Card checklist block */
+.checklist-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.checklist-card-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;user-select:none}
+.checklist-card-header:hover{background:rgba(255,255,255,.02)}
+.checklist-card-name{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;color:var(--cream);display:flex;align-items:center;gap:8px}
+.checklist-card-chevron{transition:transform .25s;color:var(--text2);font-size:.8rem}
+.checklist-card-body{border-top:1px solid rgba(255,255,255,.04)}
+.checklist-progress{font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:8px}
+.progress-bar{width:70px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.reset-btn{background:none;border:none;cursor:pointer;color:var(--text2);font-size:.72rem;padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.1);font-family:'DM Sans',sans-serif;transition:all .2s;margin-left:6px}
+.reset-btn:hover{border-color:var(--gold);color:var(--gold2)}
+
+/* Card checklist actions strip */
+.checklist-card-actions{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center}
+.reset-btn-card{background:none;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 10px;font-size:.72rem;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.reset-btn-card:hover{border-color:var(--gold);color:var(--gold2)}
+
+.checklist-item{display:flex;align-items:center;padding:12px 18px;gap:12px;border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s;cursor:pointer}
+.checklist-item:last-child{border-bottom:none}
+.checklist-item:hover{background:rgba(255,255,255,.03)}
+.checklist-item.completed .item-name{text-decoration:line-through;color:var(--text2)}
+.checklist-item.completed .item-value{color:var(--text2)}
+.check-box{width:20px;height:20px;border-radius:6px;flex-shrink:0;border:2px solid rgba(255,255,255,.2);transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:.72rem}
+.checklist-item.completed .check-box{background:var(--green);border-color:var(--green);color:#fff}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:.85rem;font-weight:500;color:var(--text);margin-bottom:1px}
+.item-period{font-size:.72rem;color:var(--text2)}
+.item-value{font-size:.85rem;font-weight:600;color:var(--gold2);font-family:'DM Mono',monospace;white-space:nowrap}
+
+/* ─── SEARCH ─── */
+.search-box-wrap{position:relative;margin-bottom:20px}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:1rem}
+.search-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:50px;padding:14px 18px 14px 46px;font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text);outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:var(--text2)}
+.quick-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
+.quick-tag{background:none;border:1px solid rgba(201,168,76,.2);border-radius:50px;padding:5px 13px;font-size:.75rem;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.quick-tag:hover{border-color:var(--gold);color:var(--gold2)}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.result-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;position:relative;animation:fadeIn .2s ease}
+.result-rank{position:absolute;top:-9px;left:14px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;font-family:'DM Mono',monospace}
+.rank-1{background:var(--gold);color:var(--navy)}
+.rank-2{background:var(--navy3);border:1px solid rgba(192,192,192,.4);color:silver}
+.rank-3{background:var(--navy3);border:1px solid rgba(176,140,100,.4);color:#b08c64}
+.result-card-name{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;color:var(--cream);margin-bottom:2px;margin-top:7px}
+.result-category{font-size:.72rem;color:var(--text2);margin-bottom:10px}
+.result-reward{font-size:1.3rem;font-weight:700;font-family:'DM Mono',monospace;color:var(--gold2);margin-bottom:3px}
+.result-cpp{font-size:.78rem;color:var(--green);margin-bottom:10px}
+.result-note{font-size:.75rem;color:var(--text2);line-height:1.5}
+.no-results{text-align:center;padding:50px 20px;color:var(--text2)}
+.no-results .icon{font-size:2.8rem;margin-bottom:10px}
+
+/* Settings */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:28px}
+.settings-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px}
+.settings-card h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:10px}
+.cpp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cpp-label{font-size:.85rem;color:var(--text);flex:1;display:flex;align-items:center;gap:7px}
+.cpp-badge{font-family:'DM Mono',monospace;font-size:.68rem;padding:2px 5px;border-radius:4px;background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.2)}
+.cpp-input{width:74px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 9px;font-family:'DM Mono',monospace;font-size:.85rem;color:var(--gold2);text-align:right;outline:none;transition:border-color .2s}
+.cpp-input:focus{border-color:var(--gold)}
+.cpp-unit{font-size:.72rem;color:var(--text2);width:28px;flex-shrink:0;font-family:'DM Mono',monospace}
+.divider{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0}
+
+/* Empty State */
+.empty-state{text-align:center;padding:70px 20px}
+.empty-state .e-icon{font-size:3rem;margin-bottom:14px}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--cream);margin-bottom:7px}
+.empty-state p{color:var(--text2);max-width:340px;margin:0 auto 20px;line-height:1.6;font-size:.88rem}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--navy3);border:1px solid var(--gold);border-radius:50px;padding:9px 22px;font-size:.82rem;color:var(--gold2);z-index:200;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:3px}
+
+
+@media(max-width:600px){
+  nav button{padding:6px 10px;font-size:.74rem}
+  .logo span{display:none}
+  .form-row{grid-template-columns:1fr}
+  .section-title{font-size:1.3rem}
+  header{padding:16px 0 14px}
+}
+</style>
 </head>
-<body class="bg-slate-50 font-sans select-none">
-    <div id="app" class="max-w-md mx-auto min-h-screen pb-24">
-        
-        <!-- Header -->
-        <header class="bg-indigo-700 text-white p-6 pt-12 rounded-b-3xl shadow-lg mb-6">
-            <h1 class="text-2xl font-bold italic tracking-tight">CARD MAXIMIZER</h1>
-            <p class="text-indigo-200 text-xs">Maximize every cent of your spend</p>
-        </header>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">CardMaxx <span>Benefits Manager</span></div>
+    <nav>
+      <button class="active" onclick="showSection('my-cards')">My Cards</button>
+      <button onclick="showSection('checklist')">Checklist</button>
+      <button onclick="showSection('search')">Best Card</button>
+      <button onclick="showSection('settings')">Settings</button>
+    </nav>
+  </header>
 
-        <div class="px-4 space-y-6">
-            
-            <!-- SEARCH SECTION (Requirement 3) -->
-            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Quick Search</label>
-                <input v-model="searchQuery" type="text" placeholder="e.g. restaurant, grocery, travel" 
-                    class="w-full bg-slate-100 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg">
-                
-                <div v-if="bestCards.length > 0" class="mt-4 space-y-3">
-                    <div v-for="(res, index) in bestCards" :key="index" 
-                        class="flex justify-between items-center p-3 rounded-xl border-l-4"
-                        :class="index === 0 ? 'bg-indigo-50 border-indigo-500' : 'bg-slate-50 border-slate-300'">
-                        <div>
-                            <span class="font-bold text-slate-800">{{ res.name }}</span>
-                            <p class="text-xs text-slate-500">{{ res.multiplier }}x Points</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xl font-black text-indigo-700">{{ res.effectiveValue }}%</span>
-                            <p class="text-[10px] text-slate-400 uppercase">Return</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  <!-- MY CARDS -->
+  <div id="my-cards" class="section active">
+    <div class="section-title">My Cards</div>
+    <div class="section-sub">Manage your credit cards and their benefits</div>
+    <div class="cards-grid" id="cards-grid"></div>
+  </div>
 
-            <!-- CHECKLIST SECTION (Requirement 2) -->
-            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <h2 class="font-bold text-slate-700 mb-3 flex justify-between">
-                    <span>Active Benefits</span>
-                    <span class="text-indigo-600 text-xs mt-1">{{ benefitsUsedCount }}/{{ activeBenefits.length }} Done</span>
-                </h2>
-                <div class="space-y-3">
-                    <div v-for="benefit in activeBenefits" :key="benefit.id" 
-                        @click="benefit.completed = !benefit.completed"
-                        class="flex items-center space-x-3 p-3 rounded-xl transition-all border"
-                        :class="benefit.completed ? 'bg-slate-50 border-transparent opacity-60' : 'bg-white border-slate-100 shadow-sm'">
-                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
-                            :class="benefit.completed ? 'bg-green-500 border-green-500' : 'border-slate-300'">
-                            <span v-if="benefit.completed" class="text-white text-xs">✓</span>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold" :class="{'line-through': benefit.completed}">{{ benefit.name }}</p>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase">{{ benefit.cardName }} • {{ benefit.frequency }}</p>
-                        </div>
-                        <span class="font-mono font-bold text-slate-600">${{ benefit.amount }}</span>
-                    </div>
-                </div>
-            </section>
+  <!-- CHECKLIST -->
+  <div id="checklist" class="section">
+    <div class="section-title">Benefits Checklist</div>
+    <div class="section-sub">Track your recurring credits — click any item to mark as claimed</div>
+    <div class="checklist-header-row">
+      <div class="checklist-filters" id="checklist-filters">
+        <button class="filter-btn active" onclick="filterChecklist('all',this)">All Benefits</button>
+        <button class="filter-btn" onclick="filterChecklist('monthly',this)">Monthly</button>
+        <button class="filter-btn" onclick="filterChecklist('quarterly',this)">Quarterly</button>
+        <button class="filter-btn" onclick="filterChecklist('semi-annual',this)">Semi-Annual</button>
+        <button class="filter-btn" onclick="filterChecklist('annual',this)">Annual</button>
+        <button class="filter-btn" onclick="filterChecklist('pending',this)">Unclaimed</button>
+      </div>
+    </div>
+    <div id="checklist-content"></div>
+  </div>
 
-            <!-- VALUATION SETTINGS (Requirement 4) -->
-            <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <h2 class="font-bold text-slate-700 mb-3">Point Values (CPP)</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <div v-for="(val, key) in pointValues" :key="key" class="bg-slate-50 p-2 rounded-lg">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase px-1">{{ key }}</label>
-                        <input type="number" step="0.1" v-model="pointValues[key]" class="w-full bg-transparent p-1 font-bold text-indigo-700 outline-none">
-                    </div>
-                </div>
-            </section>
+  <!-- SEARCH -->
+  <div id="search" class="section">
+    <div class="section-title">Best Card for Purchase</div>
+    <div class="section-sub">Find the highest-earning card for any spend category</div>
+    <div class="search-box-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="search-input" placeholder="e.g. restaurant, grocery, travel, hotel, gas…" oninput="doSearch(this.value)">
+    </div>
+    <div class="quick-tags" id="quick-tags"></div>
+    <div id="search-results"></div>
+  </div>
 
-        </div>
+  <!-- SETTINGS -->
+  <div id="settings" class="section">
+    <div class="section-title">Settings</div>
+    <div class="section-sub">Customize point valuations (cents per point)</div>
+    <div class="settings-grid" id="cpp-settings"></div>
+    <hr class="divider">
+    <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--cream);margin-bottom:14px">Data Management</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="exportData()">⬇ Export JSON</button>
+      <button class="btn-cancel" onclick="document.getElementById('import-input').click()">⬆ Import JSON</button>
+      <input type="file" id="import-input" style="display:none" accept=".json" onchange="importData(this)">
+      <button class="btn-danger btn-sm" style="padding:9px 18px;border-radius:9px;font-size:.85rem" onclick="clearAllData()">🗑 Clear All Data</button>
+    </div>
+    <div style="margin-top:24px;padding:16px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px">
+      <div style="font-size:.8rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">GitHub / PWA Setup</div>
+      <div style="font-size:.82rem;color:var(--text2);line-height:1.7">
+        Deploy to GitHub Pages: push the <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace">cardmaxx/</code> folder to a repo, then enable Pages under <em>Settings → Pages → main / root</em>. The app will be installable as a PWA on iOS &amp; Android.
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- Navigation (Requirement 1 - Add Card placeholder) -->
-        <nav class="fixed bottom-6 left-4 right-4 bg-slate-900/90 backdrop-blur-md rounded-2xl p-4 flex justify-around shadow-2xl">
-            <button class="text-white text-xs font-bold flex flex-col items-center">
-                <span>Dashboard</span>
-            </button>
-            <button @click="addDemoCard" class="bg-indigo-600 px-4 py-1 rounded-full text-white text-xs font-bold">
-                + Add Demo Card
-            </button>
-        </nav>
+<!-- CARD MODAL -->
+<div class="modal-overlay" id="add-card-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Add New Card</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Card Name</label>
+        <input type="text" class="form-input" id="card-name" placeholder="e.g. Amex Gold">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Issuer</label>
+        <input type="text" class="form-input" id="card-issuer" placeholder="e.g. American Express">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Annual Fee ($)</label>
+        <input type="number" class="form-input" id="card-fee" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Points Currency</label>
+        <select class="form-select" id="card-points">
+          <option value="MR">MR – Amex Membership Rewards</option>
+          <option value="SkyMiles">SkyMiles – Delta/Amex</option>
+          <option value="UR">UR – Chase Ultimate Rewards</option>
+          <option value="Hyatt">Hyatt Points</option>
+          <option value="IHG">IHG One Rewards</option>
+          <option value="Bonvoy">Marriott Bonvoy</option>
+          <option value="HawaiianMiles">HawaiianMiles / Atmos</option>
+          <option value="TYP">TYP – Citi ThankYou</option>
+          <option value="CAP1">CAP1 – Capital One Miles</option>
+          <option value="Cash">Cash Back</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Network</label>
+      <select class="form-select" id="card-network">
+        <option value="amex">American Express</option>
+        <option value="visa">Visa</option>
+        <option value="mc">Mastercard</option>
+        <option value="discover">Discover</option>
+      </select>
     </div>
 
-    <script>
-        const { createApp, ref, computed, watch } = Vue;
+    <div class="form-group">
+      <label class="form-label" style="margin-bottom:10px">Annual Credits & Benefits</label>
+      <div id="benefits-list"></div>
+      <button class="add-sub-btn" onclick="showAddBenefit()">+ Add Benefit / Credit</button>
+      <div class="sub-form" id="add-benefit-form">
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Benefit Name</label>
+            <input type="text" class="form-input" id="ben-name" placeholder="e.g. Uber Cash">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Value ($)</label>
+            <input type="number" class="form-input" id="ben-value" placeholder="10">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:10px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Period</label>
+            <select class="form-select" id="ben-period">
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="semi-annual">Semi-Annual</option>
+              <option value="annual">Annual</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Merchant / Category</label>
+            <input type="text" class="form-input" id="ben-merchant" placeholder="e.g. Uber, Dining, Delta">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn-primary" style="padding:7px 16px;font-size:.8rem" onclick="addBenefitToList()">Add</button>
+          <button class="btn-cancel" style="padding:7px 14px;font-size:.8rem" onclick="document.getElementById('add-benefit-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
 
-        createApp({
-            setup() {
-                // Point Values (Requirement 4)
-                const pointValues = ref(JSON.parse(localStorage.getItem('pointValues')) || {
-                    MR: 1.6, UR: 1.7, C1: 1.0, Cash: 1.0
-                });
+    <div class="form-group">
+      <label class="form-label" style="margin-bottom:10px">Earning Rates (per $1 spent)</label>
+      <div id="earn-rates-list"></div>
+      <button class="add-sub-btn" onclick="showAddEarnRate()">+ Add Earning Rate</button>
+      <div class="sub-form" id="add-earn-form">
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Category</label>
+            <input type="text" class="form-input" id="earn-cat" placeholder="e.g. Restaurants, Grocery">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Points per $1</label>
+            <input type="number" class="form-input" id="earn-pts" placeholder="4" step="0.5">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn-primary" style="padding:7px 16px;font-size:.8rem" onclick="addEarnRate()">Add</button>
+          <button class="btn-cancel" style="padding:7px 14px;font-size:.8rem" onclick="document.getElementById('add-earn-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
 
-                // User Cards (Requirement 1)
-                const myCards = ref(JSON.parse(localStorage.getItem('myCards')) || [
-                    { 
-                        name: 'Amex Gold', type: 'MR', 
-                        rewards: { restaurant: 4, grocery: 4, travel: 3 },
-                        benefits: [
-                            { id: 1, name: 'Uber Credit', amount: 10, frequency: 'monthly', completed: false },
-                            { id: 2, name: 'Resy Credit', amount: 50, frequency: 'semi-annual', completed: false }
-                        ]
-                    }
-                ]);
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCard()">Save Card</button>
+    </div>
+  </div>
+</div>
 
-                const searchQuery = ref('');
+<div class="toast" id="toast"></div>
 
-                const bestCards = computed(() => {
-                    if (!searchQuery.value) return [];
-                    const category = searchQuery.value.toLowerCase();
-                    return myCards.value
-                        .map(card => {
-                            const multiplier = card.rewards[category] || 1;
-                            const cpp = pointValues.value[card.type] || 1.0;
-                            return {
-                                name: card.name,
-                                multiplier: multiplier,
-                                effectiveValue: (multiplier * cpp).toFixed(1)
-                            };
-                        })
-                        .sort((a, b) => b.effectiveValue - a.effectiveValue)
-                        .slice(0, 3);
-                });
+<script>
+// ─── Default Card Data ────────────────────────────────────────────────────────
+const DEFAULT_CARDS = [
+  {
+    id:'dc1', name:'Amex Delta SkyMiles® Gold', issuer:'American Express', fee:150,
+    points:'SkyMiles', network:'amex',
+    benefits:[
+      {id:'b1-1',name:'Delta Stays Credit',value:100,period:'annual',merchant:'Delta Stays'},
+      {id:'b1-2',name:'Uber One Credit',value:9.99,period:'monthly',merchant:'Uber One'},
+      {id:'b1-3',name:'Delta Flight Credit',value:200,period:'annual',merchant:'Delta (after $10k spend)'},
+      {id:'b1-4',name:'20% In-flight Savings',value:0,period:'annual',merchant:'Delta in-flight'},
+    ],
+    earnRates:[
+      {id:'e1-1',category:'Delta Purchases',points:2},
+      {id:'e1-2',category:'Restaurants',points:2},
+      {id:'e1-3',category:'US Supermarkets',points:2},
+      {id:'e1-4',category:'All Other',points:1},
+    ]
+  },
+  {
+    id:'dc0', name:'American Express® Gold', issuer:'American Express', fee:325,
+    points:'MR', network:'amex',
+    benefits:[
+      {id:'b0-1',name:'Uber Cash',value:10,period:'monthly',merchant:'Uber / Uber Eats (US)'},
+      {id:'b0-2',name:'Dining Credit',value:10,period:'monthly',merchant:'Grubhub, Cheesecake Factory, Goldbelly, Wine.com, Five Guys'},
+      {id:'b0-3',name:'Dunkin\' Credit',value:7,period:'monthly',merchant:'Dunkin\' (US locations)'},
+      {id:'b0-4',name:'Resy Credit',value:50,period:'semi-annual',merchant:'U.S. Resy restaurants (Jan–Jun & Jul–Dec)'},
+      {id:'b0-5',name:'Hotel Collection Credit',value:100,period:'annual',merchant:'AmexTravel Hotel Collection (2+ nights)'},
+    ],
+    earnRates:[
+      {id:'e0-1',category:'Restaurants Worldwide',points:4},
+      {id:'e0-2',category:'US Supermarkets',points:4},
+      {id:'e0-3',category:'Flights (direct or AmexTravel)',points:3},
+      {id:'e0-4',category:'Prepaid Hotels (AmexTravel)',points:2},
+      {id:'e0-5',category:'All Other',points:1},
+    ]
+  },
+  {
+    id:'dc2', name:'Hawaiian Airlines Mastercard', issuer:'Barclays', fee:99,
+    points:'HawaiianMiles', network:'mc',
+    benefits:[
+      {id:'b2-1',name:'Annual Companion Discount ($100)',value:100,period:'annual',merchant:'Hawaiian / Alaska Airlines'},
+      {id:'b2-2',name:'First Checked Bag Free',value:35,period:'annual',merchant:'Hawaiian Airlines'},
+    ],
+    earnRates:[
+      {id:'e2-1',category:'Hawaiian / Alaska Airlines',points:3},
+      {id:'e2-2',category:'Gas',points:2},
+      {id:'e2-3',category:'Dining',points:2},
+      {id:'e2-4',category:'Grocery',points:2},
+      {id:'e2-5',category:'All Other',points:1},
+    ]
+  },
+  {
+    id:'dc3', name:'IHG One Rewards Premier', issuer:'Chase', fee:99,
+    points:'IHG', network:'mc',
+    benefits:[
+      {id:'b3-1',name:'Anniversary Free Night',value:100,period:'annual',merchant:'IHG Hotels (up to 40k pts)'},
+      {id:'b3-2',name:'United TravelBank Credit',value:25,period:'semi-annual',merchant:'United Airlines (Jan & Jul)'},
+      {id:'b3-3',name:'$100 Credit + 10k Bonus Points',value:100,period:'annual',merchant:'After $20k spend'},
+      {id:'b3-4',name:'Global Entry / TSA PreCheck',value:120,period:'annual',merchant:'Every 4 years'},
+    ],
+    earnRates:[
+      {id:'e3-1',category:'IHG Hotels',points:10},
+      {id:'e3-2',category:'Dining',points:5},
+      {id:'e3-3',category:'Gas',points:5},
+      {id:'e3-4',category:'Travel',points:5},
+      {id:'e3-5',category:'All Other',points:3},
+    ]
+  },
+  {
+    id:'dc4', name:'World of Hyatt', issuer:'Chase', fee:95,
+    points:'Hyatt', network:'visa',
+    benefits:[
+      {id:'b4-1',name:'Anniversary Free Night',value:150,period:'annual',merchant:'Hyatt (Cat 1–4)'},
+      {id:'b4-2',name:'Bonus Free Night',value:150,period:'annual',merchant:'Hyatt (Cat 1–4) after $15k spend'},
+    ],
+    earnRates:[
+      {id:'e4-1',category:'Hyatt Hotels',points:4},
+      {id:'e4-2',category:'Dining',points:2},
+      {id:'e4-3',category:'Airline Tickets',points:2},
+      {id:'e4-4',category:'Local Transit / Commute',points:2},
+      {id:'e4-5',category:'Fitness / Gym',points:2},
+      {id:'e4-6',category:'All Other',points:1},
+    ]
+  },
+  {
+    id:'dc5', name:'Chase Freedom Flex', issuer:'Chase', fee:0,
+    points:'UR', network:'mc',
+    benefits:[
+      {id:'b5-1',name:'Activate Q1 5% Categories',value:75,period:'quarterly',merchant:'Quarterly rotating (activate!)'},
+      {id:'b5-2',name:'Activate Q2 5% Categories',value:75,period:'quarterly',merchant:'Quarterly rotating (activate!)'},
+      {id:'b5-3',name:'Activate Q3 5% Categories',value:75,period:'quarterly',merchant:'Quarterly rotating (activate!)'},
+      {id:'b5-4',name:'Activate Q4 5% Categories',value:75,period:'quarterly',merchant:'Quarterly rotating (activate!)'},
+    ],
+    earnRates:[
+      {id:'e5-1',category:'Rotating Quarterly (activated)',points:5},
+      {id:'e5-2',category:'Chase Travel',points:5},
+      {id:'e5-3',category:'Dining',points:3},
+      {id:'e5-4',category:'Drugstores',points:3},
+      {id:'e5-5',category:'All Other',points:1},
+    ]
+  },
+  {
+    id:'dc6', name:'Ritz-Carlton Visa Infinite', issuer:'Chase', fee:450,
+    points:'Bonvoy', network:'visa',
+    benefits:[
+      {id:'b6-1',name:'Annual Travel Credit (Airline)',value:300,period:'annual',merchant:'Airline fees — call to apply'},
+      {id:'b6-2',name:'Anniversary Free Night',value:500,period:'annual',merchant:'Marriott Bonvoy (up to 85k pts)'},
+      {id:'b6-3',name:'$100 Hotel Activity Credit',value:100,period:'annual',merchant:'Ritz-Carlton / St. Regis (2+ nights)'},
+      {id:'b6-4',name:'3x Club Level Upgrades',value:0,period:'annual',merchant:'Ritz-Carlton properties'},
+      {id:'b6-5',name:'Global Entry / TSA PreCheck',value:120,period:'annual',merchant:'Every 4 years'},
+    ],
+    earnRates:[
+      {id:'e6-1',category:'Marriott / Ritz-Carlton',points:6},
+      {id:'e6-2',category:'Dining',points:3},
+      {id:'e6-3',category:'Car Rentals',points:3},
+      {id:'e6-4',category:'Airfare',points:3},
+      {id:'e6-5',category:'All Other',points:2},
+    ]
+  },
+  {
+    id:'dc7', name:'Discover it Cash Back', issuer:'Discover', fee:0,
+    points:'Cash', network:'discover',
+    benefits:[
+      {id:'b7-1',name:'Activate Q1 5% Cash Back',value:75,period:'quarterly',merchant:'Quarterly rotating (must activate)'},
+      {id:'b7-2',name:'Activate Q2 5% Cash Back',value:75,period:'quarterly',merchant:'Quarterly rotating (must activate)'},
+      {id:'b7-3',name:'Activate Q3 5% Cash Back',value:75,period:'quarterly',merchant:'Quarterly rotating (must activate)'},
+      {id:'b7-4',name:'Activate Q4 5% Cash Back',value:75,period:'quarterly',merchant:'Quarterly rotating (must activate)'},
+    ],
+    earnRates:[
+      {id:'e7-1',category:'Rotating Quarterly (activated)',points:5},
+      {id:'e7-2',category:'All Other',points:1},
+    ]
+  },
+];
 
-                const activeBenefits = computed(() => {
-                    return myCards.value.flatMap(card => 
-                        card.benefits.map(b => ({ ...b, cardName: card.name }))
-                    );
-                });
+// ─── State ───────────────────────────────────────────────────────────────────
+let state = {
+  cards: [],
+  checklistItems: {},
+  cppValues: { MR:1.6, SkyMiles:1.2, UR:2.0, Hyatt:1.7, IHG:0.6, Bonvoy:0.7, HawaiianMiles:0.9, TYP:1.8, CAP1:1.5, Cash:1.0, Other:1.0 }
+};
+let editingCardId = null;
+let tempBenefits = [];
+let tempEarnRates = [];
 
-                const benefitsUsedCount = computed(() => activeBenefits.value.filter(b => b.completed).length);
+// collapsed states (card body only — no month collapsing)
+let cardCollapsed = {};  // cardId -> bool
 
-                const addDemoCard = () => {
-                    myCards.value.push({
-                        name: 'Chase Sapphire Pref', type: 'UR', 
-                        rewards: { restaurant: 3, travel: 2, grocery: 1 },
-                        benefits: [{ id: Date.now(), name: 'Hotel Credit', amount: 50, frequency: 'annual', completed: false }]
-                    });
-                };
+// ─── Persistence ─────────────────────────────────────────────────────────────
+function save() { try { localStorage.setItem('cardmaxx_v3', JSON.stringify(state)); } catch(e){} }
+function load() {
+  try {
+    const d = localStorage.getItem('cardmaxx_v3');
+    if(d) state = Object.assign({}, state, JSON.parse(d));
+  } catch(e){}
+}
 
-                watch([pointValues, myCards], () => {
-                    localStorage.setItem('pointValues', JSON.stringify(pointValues.value));
-                    localStorage.setItem('myCards', JSON.stringify(myCards.value));
-                }, { deep: true });
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
 
-                return { pointValues, myCards, searchQuery, bestCards, activeBenefits, benefitsUsedCount, addDemoCard };
-            }
-        }).mount('#app');
+// ─── Nav ─────────────────────────────────────────────────────────────────────
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map = {'my-cards':0,'checklist':1,'search':2,'settings':3};
+  document.querySelectorAll('nav button')[map[id]].classList.add('active');
+  if(id==='my-cards') renderCards();
+  if(id==='checklist') renderChecklist();
+  if(id==='search') renderSearch();
+  if(id==='settings') renderSettings();
+}
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
+// ─── Utils ───────────────────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function getBenIcon(name='') {
+  const n = name.toLowerCase();
+  if(n.includes('uber')||n.includes('lyft')||n.includes('ride')) return '🚗';
+  if(n.includes('delta')||n.includes('flight')||n.includes('airfare')||n.includes('airline')||n.includes('hawaiian')||n.includes('united')) return '✈️';
+  if(n.includes('hotel')||n.includes('stays')||n.includes('ritz')||n.includes('hyatt')||n.includes('ihg')||n.includes('marriott')||n.includes('night')) return '🏨';
+  if(n.includes('dining')||n.includes('restaurant')||n.includes('resy')||n.includes('food')||n.includes('doordash')) return '🍽️';
+  if(n.includes('gym')||n.includes('fitness')||n.includes('equinox')||n.includes('peloton')||n.includes('sport')) return '🏋️';
+  if(n.includes('stream')||n.includes('disney')||n.includes('netflix')||n.includes('hulu')||n.includes('spotify')) return '📺';
+  if(n.includes('lounge')||n.includes('priority pass')||n.includes('club')) return '🛋️';
+  if(n.includes('tsa')||n.includes('global entry')||n.includes('nexus')) return '🛂';
+  if(n.includes('credit')||n.includes('bonus')||n.includes('cash back')||n.includes('match')) return '💰';
+  if(n.includes('shop')||n.includes('retail')||n.includes('amazon')) return '🛍️';
+  if(n.includes('bag')||n.includes('luggage')||n.includes('checked')) return '🧳';
+  if(n.includes('companion')) return '👫';
+  if(n.includes('activate')||n.includes('quarter')||n.includes('rotating')) return '🔄';
+  return '✨';
+}
+
+function networkBadge(network='visa') {
+  const labels = {amex:'AMEX',visa:'VISA',mc:'MC',discover:'DISC'};
+  return `<span class="card-network-badge badge-${network}">${labels[network]||network.toUpperCase()}</span>`;
+}
+
+// ─── MY CARDS ────────────────────────────────────────────────────────────────
+function renderCards() {
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = '';
+  state.cards.forEach(c => {
+    const cpp = state.cppValues[c.points] || 1.0;
+    const div = document.createElement('div');
+    div.className = 'card-widget';
+    const benTags = (c.benefits||[]).slice(0,4).map(b=>`<span class="benefit-tag">${getBenIcon(b.name)} ${b.merchant||b.name}</span>`).join('');
+    div.innerHTML = `
+      ${networkBadge(c.network)}
+      <div class="card-name">${c.name}</div>
+      <div class="card-issuer">${c.issuer}</div>
+      <div class="card-annual-fee">Annual Fee: <span>$${c.fee||0}</span></div>
+      <div><span class="card-points-label">${c.points} @ ${cpp}¢/pt</span></div>
+      <div class="benefit-tags">${benTags}</div>
+      <div class="card-actions">
+        <button class="btn-sm btn-ghost" onclick="openEditCard('${c.id}')">✏️ Edit</button>
+        <button class="btn-sm btn-danger" onclick="deleteCard('${c.id}')">🗑 Remove</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-card-btn';
+  addBtn.innerHTML = '＋ Add New Card';
+  addBtn.onclick = openAddCard;
+  grid.appendChild(addBtn);
+}
+
+function openAddCard() {
+  editingCardId = null; tempBenefits = []; tempEarnRates = [];
+  document.getElementById('modal-title').textContent = 'Add New Card';
+  ['card-name','card-issuer','card-fee'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('card-points').value = 'MR';
+  document.getElementById('card-network').value = 'amex';
+  document.getElementById('add-benefit-form').style.display = 'none';
+  document.getElementById('add-earn-form').style.display = 'none';
+  renderTempBenefits(); renderTempEarnRates();
+  document.getElementById('add-card-modal').classList.add('open');
+}
+
+function openEditCard(id) {
+  const card = state.cards.find(c => c.id === id);
+  if(!card) return;
+  editingCardId = id;
+  tempBenefits = JSON.parse(JSON.stringify(card.benefits||[]));
+  tempEarnRates = JSON.parse(JSON.stringify(card.earnRates||[]));
+  document.getElementById('modal-title').textContent = 'Edit Card';
+  document.getElementById('card-name').value = card.name;
+  document.getElementById('card-issuer').value = card.issuer;
+  document.getElementById('card-fee').value = card.fee||0;
+  document.getElementById('card-points').value = card.points;
+  document.getElementById('card-network').value = card.network;
+  document.getElementById('add-benefit-form').style.display = 'none';
+  document.getElementById('add-earn-form').style.display = 'none';
+  renderTempBenefits(); renderTempEarnRates();
+  document.getElementById('add-card-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('add-card-modal').classList.remove('open'); }
+
+function saveCard() {
+  const name = document.getElementById('card-name').value.trim();
+  if(!name) { toast('Please enter a card name'); return; }
+  const card = {
+    id: editingCardId || uid(),
+    name,
+    issuer: document.getElementById('card-issuer').value.trim(),
+    fee: parseFloat(document.getElementById('card-fee').value)||0,
+    points: document.getElementById('card-points').value,
+    network: document.getElementById('card-network').value,
+    benefits: tempBenefits,
+    earnRates: tempEarnRates
+  };
+  if(editingCardId) {
+    const i = state.cards.findIndex(c => c.id === editingCardId);
+    state.cards[i] = card;
+  } else {
+    state.cards.push(card);
+  }
+  save(); closeModal(); renderCards();
+  toast(editingCardId ? 'Card updated!' : 'Card added!');
+}
+
+function deleteCard(id) {
+  if(!confirm('Remove this card?')) return;
+  state.cards = state.cards.filter(c => c.id !== id);
+  save(); renderCards(); toast('Card removed');
+}
+
+// Temp benefit management
+function showAddBenefit() { document.getElementById('add-benefit-form').style.display = 'block'; }
+function addBenefitToList() {
+  const name = document.getElementById('ben-name').value.trim();
+  const value = parseFloat(document.getElementById('ben-value').value)||0;
+  const period = document.getElementById('ben-period').value;
+  const merchant = document.getElementById('ben-merchant').value.trim();
+  if(!name) { toast('Enter benefit name'); return; }
+  tempBenefits.push({id:uid(), name, value, period, merchant});
+  document.getElementById('add-benefit-form').style.display = 'none';
+  document.getElementById('ben-name').value = '';
+  document.getElementById('ben-value').value = '';
+  document.getElementById('ben-merchant').value = '';
+  renderTempBenefits();
+}
+function removeBenefit(i) { tempBenefits.splice(i,1); renderTempBenefits(); }
+function renderTempBenefits() {
+  const el = document.getElementById('benefits-list');
+  el.innerHTML = tempBenefits.map((b,i) => `
+    <div class="benefit-item">
+      <span class="benefit-icon">${getBenIcon(b.name)}</span>
+      <div class="benefit-info">
+        <div class="benefit-name">${b.name}${b.value?' — $'+b.value:''}</div>
+        <div class="benefit-detail">${b.period}${b.merchant?' · '+b.merchant:''}</div>
+      </div>
+      <button class="benefit-remove" onclick="removeBenefit(${i})">✕</button>
+    </div>`).join('');
+}
+
+function showAddEarnRate() { document.getElementById('add-earn-form').style.display = 'block'; }
+function addEarnRate() {
+  const cat = document.getElementById('earn-cat').value.trim();
+  const pts = parseFloat(document.getElementById('earn-pts').value)||1;
+  if(!cat) { toast('Enter category name'); return; }
+  tempEarnRates.push({id:uid(), category:cat, points:pts});
+  document.getElementById('add-earn-form').style.display = 'none';
+  document.getElementById('earn-cat').value = ''; document.getElementById('earn-pts').value = '';
+  renderTempEarnRates();
+}
+function removeEarnRate(i) { tempEarnRates.splice(i,1); renderTempEarnRates(); }
+function renderTempEarnRates() {
+  const el = document.getElementById('earn-rates-list');
+  el.innerHTML = tempEarnRates.map((r,i) => `
+    <div class="benefit-item">
+      <span class="benefit-icon">💳</span>
+      <div class="benefit-info">
+        <div class="benefit-name">${r.category}</div>
+        <div class="benefit-detail">${r.points}x pts per $1</div>
+      </div>
+      <button class="benefit-remove" onclick="removeEarnRate(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ─── CHECKLIST ───────────────────────────────────────────────────────────────
+let checklistFilter = 'all';
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CUR_YEAR = new Date().getFullYear();
+const CUR_MONTH = new Date().getMonth();
+
+function filterChecklist(f, btn) {
+  checklistFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChecklist();
+}
+
+function getCheckKey(cardId, benId, slotKey) { return `${cardId}:${benId}:${slotKey}`; }
+
+function getPeriodSlots(period) {
+  if(period === 'monthly') {
+    return MONTHS.map((m,i) => ({ label: m + ' ' + CUR_YEAR, key: `${CUR_YEAR}-m${i}`, month: i }));
+  }
+  if(period === 'quarterly') {
+    return [0,1,2,3].map(q => ({ label: `Q${q+1} ${CUR_YEAR}`, key: `${CUR_YEAR}-q${q}`, quarter: q }));
+  }
+  if(period === 'semi-annual') {
+    return [
+      {label:`H1 ${CUR_YEAR}`, key:`${CUR_YEAR}-h1`},
+      {label:`H2 ${CUR_YEAR}`, key:`${CUR_YEAR}-h2`}
+    ];
+  }
+  return [{label:`Annual ${CUR_YEAR}`, key:`${CUR_YEAR}`}];
+}
+
+function toggleCardCollapse(cardId) {
+  cardCollapsed[cardId] = !cardCollapsed[cardId];
+  renderChecklist();
+}
+
+function renderChecklist() {
+  const el = document.getElementById('checklist-content');
+  if(!state.cards.length) {
+    el.innerHTML = `<div class="empty-state"><div class="e-icon">📋</div><h3>No Cards Yet</h3><p>Add cards with benefits to track them here.</p></div>`;
+    return;
+  }
+
+  let html = '';
+  let anyContent = false;
+
+  state.cards.forEach(card => {
+    const allBenSlots = [];
+    (card.benefits||[]).forEach(b => {
+      if(checklistFilter !== 'all' && checklistFilter !== 'pending' && b.period !== checklistFilter) return;
+      const slots = getPeriodSlots(b.period);
+      slots.forEach(slot => {
+        const key = getCheckKey(card.id, b.id, slot.key);
+        const done = !!state.checklistItems[key];
+        if(checklistFilter === 'pending' && done) return;
+        allBenSlots.push({ benefit: b, slot, key, done });
+      });
+    });
+
+    if(!allBenSlots.length) return;
+    anyContent = true;
+
+    const done = allBenSlots.filter(i => i.done).length;
+    const total = allBenSlots.length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    const collapsed = !!cardCollapsed[card.id];
+
+    // Sort: monthly items in month order first, then non-monthly
+    const monthly = allBenSlots
+      .filter(i => i.benefit.period === 'monthly')
+      .sort((a, b) => (a.slot.month||0) - (b.slot.month||0));
+    const nonMonthly = allBenSlots.filter(i => i.benefit.period !== 'monthly');
+
+    // Render monthly items flat — each row shows month as the period label
+    let bodyHtml = monthly.map(item => renderCheckItem(item)).join('');
+    // Render non-monthly items
+    bodyHtml += nonMonthly.map(item => renderCheckItem(item)).join('');
+
+    html += `
+      <div class="checklist-card">
+        <div class="checklist-card-header" onclick="toggleCardCollapse('${card.id}')">
+          <div class="checklist-card-name">${card.name}</div>
+          <div class="checklist-progress">
+            ${done}/${total}
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <span class="checklist-card-chevron">${collapsed ? '▶' : '▼'}</span>
+          </div>
+        </div>
+        <div class="checklist-card-actions">
+          <button class="reset-btn-card" onclick="resetCard('${card.id}')">↺ Reset all</button>
+        </div>
+        <div class="checklist-card-body" style="display:${collapsed?'none':'block'}">${bodyHtml}</div>
+      </div>`;
+  });
+
+  if(!anyContent) {
+    el.innerHTML = `<div class="empty-state"><div class="e-icon">✅</div><h3>All Claimed!</h3><p>No pending benefits for this filter.</p></div>`;
+  } else {
+    el.innerHTML = html;
+  }
+}
+
+function renderCheckItem(item) {
+  return `
+    <div class="checklist-item ${item.done?'completed':''}" onclick="toggleCheck('${item.key}')">
+      <div class="check-box">${item.done?'✓':''}</div>
+      <div class="item-info">
+        <div class="item-name">${getBenIcon(item.benefit.name)} ${item.benefit.name}${item.benefit.merchant?' ('+item.benefit.merchant+')':''}</div>
+        <div class="item-period">${item.slot.label} · ${item.benefit.period}</div>
+      </div>
+      ${item.benefit.value ? `<div class="item-value">$${item.benefit.value}</div>` : ''}
+    </div>`;
+}
+
+function toggleCheck(key) {
+  state.checklistItems[key] = !state.checklistItems[key];
+  if(!state.checklistItems[key]) delete state.checklistItems[key];
+  save(); renderChecklist();
+}
+
+function resetCard(cardId) {
+  if(!window.confirm('Reset all checklist items for this card?')) return;
+  Object.keys(state.checklistItems).forEach(k => {
+    if(k.startsWith(cardId+':')) delete state.checklistItems[k];
+  });
+  save(); renderChecklist(); toast('Card checklist reset!');
+}
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+const QUICK_CATS = ['Restaurants','Grocery','Gas','Travel','Hotels','Airfare','Delta','Hyatt','IHG','Drugstore','Streaming','Amazon'];
+
+function renderSearch() {
+  const el = document.getElementById('quick-tags');
+  el.innerHTML = QUICK_CATS.map(c => `<button class="quick-tag" onclick="doSearch('${c}');document.getElementById('search-input').value='${c}'">${c}</button>`).join('');
+  const q = document.getElementById('search-input').value;
+  if(q) doSearch(q); else document.getElementById('search-results').innerHTML = '';
+}
+
+function doSearch(q) {
+  const el = document.getElementById('search-results');
+  if(!q.trim()) { el.innerHTML = ''; return; }
+  if(!state.cards.length) {
+    el.innerHTML = `<div class="no-results"><div class="icon">💳</div><p>Add cards first to compare rewards.</p></div>`;
+    return;
+  }
+
+  const kw = q.toLowerCase();
+  const synonymMap = {
+    'restaurant':['dining','restaurant','food','eating','resy','doordash','grubhub'],
+    'grocery':['grocery','supermarket','market','food','whole foods'],
+    'gas':['gas','fuel','station'],
+    'travel':['travel','transit','commute','transport'],
+    'hotel':['hotel','hilton','marriott','hyatt','ihg','inn','resort','stays','ritz','ritz-carlton'],
+    'airfare':['airline','airfare','flight','delta','united','american','hawaiian','alaska'],
+    'delta':['delta','skymiles'],
+    'hyatt':['hyatt','world of hyatt'],
+    'ihg':['ihg','intercontinental','holiday inn','crowne plaza','kimpton'],
+    'streaming':['streaming','entertainment','netflix','disney','hulu','spotify','apple tv'],
+    'drugstore':['drugstore','pharmacy','drug','cvs','walgreens'],
+    'amazon':['amazon','online'],
+  };
+
+  const scores = [];
+  state.cards.forEach(card => {
+    const cpp = state.cppValues[card.points] || 1.0;
+    let bestRate = 1; let bestCat = 'Base rate (1x)';
+
+    (card.earnRates||[]).forEach(r => {
+      const rCat = r.category.toLowerCase();
+      if(rCat.includes(kw) || kw.includes(rCat.split(' ')[0])) {
+        if(r.points > bestRate) { bestRate = r.points; bestCat = r.category; }
+      }
+    });
+
+    Object.entries(synonymMap).forEach(([key, synonyms]) => {
+      if(synonyms.some(s => kw.includes(s) || s.includes(kw))) {
+        (card.earnRates||[]).forEach(r => {
+          if(synonyms.some(s => r.category.toLowerCase().includes(s))) {
+            if(r.points > bestRate) { bestRate = r.points; bestCat = r.category; }
+          }
+        });
+      }
+    });
+
+    const effectiveCpp = (bestRate * cpp / 100 * 100).toFixed(2);
+    scores.push({ card, bestRate, bestCat, cpp, effectiveCpp });
+  });
+
+  scores.sort((a,b) => b.effectiveCpp - a.effectiveCpp);
+  const top = scores.slice(0,3);
+
+  el.innerHTML = `
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:14px">Top cards for "<strong style="color:var(--gold2)">${q}</strong>"</div>
+    <div class="results-grid">
+      ${top.map((s,i) => `
+        <div class="result-card">
+          <div class="result-rank rank-${i+1}">${i+1}</div>
+          <div class="result-card-name">${s.card.name}</div>
+          <div class="result-category">${s.bestCat}</div>
+          <div class="result-reward">${s.bestRate}x <span style="font-size:.82rem;color:var(--text2)">${s.card.points}</span></div>
+          <div class="result-cpp">≈ ${s.effectiveCpp}¢ per $1 spent</div>
+          <div class="result-note">${s.card.points} @ ${s.cpp}¢/pt · ${s.effectiveCpp}% effective return</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+function renderSettings() {
+  const currencies = [
+    {key:'MR',name:'Membership Rewards',issuer:'American Express'},
+    {key:'SkyMiles',name:'SkyMiles',issuer:'Delta / Amex'},
+    {key:'UR',name:'Ultimate Rewards',issuer:'Chase'},
+    {key:'Hyatt',name:'World of Hyatt Points',issuer:'Hyatt / Chase'},
+    {key:'IHG',name:'IHG One Rewards Points',issuer:'IHG / Chase'},
+    {key:'Bonvoy',name:'Marriott Bonvoy Points',issuer:'Marriott / Chase'},
+    {key:'HawaiianMiles',name:'HawaiianMiles / Atmos',issuer:'Hawaiian / Barclays'},
+    {key:'TYP',name:'ThankYou Points',issuer:'Citi'},
+    {key:'CAP1',name:'Capital One Miles',issuer:'Capital One'},
+    {key:'Cash',name:'Cash Back',issuer:'Various'},
+  ];
+  document.getElementById('cpp-settings').innerHTML = currencies.map(c => `
+    <div class="settings-card">
+      <h4>${c.issuer}</h4>
+      <div class="cpp-row">
+        <div class="cpp-label"><span class="cpp-badge">${c.key}</span> ${c.name}</div>
+        <input type="number" class="cpp-input" value="${state.cppValues[c.key]||1.0}" step="0.05" min="0.1" max="10"
+          onchange="updateCpp('${c.key}',this.value)">
+        <span class="cpp-unit">¢</span>
+      </div>
+      <div style="font-size:.72rem;color:var(--text2);margin-top:4px">
+        1,000 pts = <span style="color:var(--green);font-family:'DM Mono',monospace">$${((state.cppValues[c.key]||1.0)*10).toFixed(2)}</span>
+      </div>
+    </div>`).join('');
+}
+function updateCpp(key, val) {
+  state.cppValues[key] = parseFloat(val)||1.0;
+  save(); toast(`${key} updated to ${val}¢`);
+}
+
+// ─── Data Management ─────────────────────────────────────────────────────────
+function exportData() {
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cardmaxx-backup.json'; a.click();
+}
+function importData(input) {
+  const file = input.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      state = Object.assign({}, state, d);
+      save(); renderCards(); toast('Data imported!');
+    } catch(err) { toast('Invalid JSON file'); }
+  };
+  r.readAsText(file); input.value = '';
+}
+function clearAllData() {
+  if(!confirm('Clear all data? This cannot be undone.')) return;
+  state = {
+    cards: [], checklistItems: {},
+    cppValues: {MR:1.6,SkyMiles:1.2,UR:2.0,Hyatt:1.7,IHG:0.6,Bonvoy:0.7,HawaiianMiles:0.9,TYP:1.8,CAP1:1.5,Cash:1.0,Other:1.0}
+  };
+  save(); renderCards(); toast('Data cleared');
+}
+
+// ─── Seed Default Cards ──────────────────────────────────────────────────────
+function seedDefaultCards() {
+  if(state.cards.length) return;
+  state.cards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
+  save();
+}
+
+// ─── Service Worker ──────────────────────────────────────────────────────────
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+load();
+seedDefaultCards();
+renderCards();
+</script>
 </body>
 </html>
